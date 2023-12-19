@@ -1,0 +1,8 @@
+#lang racket
+
+
+(define (func-to-lambda lista)
+  (define etc (drop lista ))
+  (define args (rest (second lista)))
+  (cons 'lambda (cons args etc))
+
