@@ -8,6 +8,12 @@
   (cons 'lambda (cons args etc))
   )
 
+(define (nivel2)
+  (displayln '"Você precisa SOMAR danos ao inimigo. Crie uma função que SOME o dano de DOIS feitiços e retorne o resultado da soma.")
+  (display '"Insira a resposta aqui: ")
+  (resp (read (current-input-port)) 1)
+  )
+
 (define (nivel2-solucao parametro)
   (cond
     [(equal? parametro "ataque") #t]
@@ -23,12 +29,17 @@
 (define (errou-nivel nv)
   (cond
     [(= nv 1) (displayln "Você errou, tente novamente")]
+    [(= nv 2) (displayln "Você errou, tente novamente")]
     )
   )
 
 (define (resp resposta nivel)
   (with-handlers ([exn:fail? (lambda(e) (errou-nivel nivel))])
-    (eval (func-to-lambda resposta) ns)
+    (let ([exp (eval (func-to-lambda resposta) ns)])
+      (cond
+        [(equal? (exp "ataque") (nivel2-solucao "ataque")) "Parabéns! Você acertou"]
+        [else (displayln (exp))])
+      )
     )
   )
 
@@ -51,12 +62,12 @@
 (displayln "Insira seu nome: ")
 (define nome (read-line (current-input-port)))
 
-(define text-to-print
+(define text1
   (quasiquote( (unquote (string-append "Em um reino distante, existia um mundo paralelo onde os destinos eram tecidos pela linguagem mágica da programação. Neste universo, cada indivíduo nascia com um código único, determinando seus poderes e habilidades.
       Certo dia, um jovem chamado " nome " foi transportado para esse mundo mágico através de um portal inesperado. Ao despertar, descobriu que havia reencarnado como um Herói, destinado a derrotar o temível Rei Demônio que ameaçava a existência de todas as criaturas."))
      (unquote (string-append "Contudo, as habilidades do Herói só poderiam ser desbloqueadas através do conhecimento e domínio da linguagem de programação Racket, que era a base de todos os poderes mágicos daquele mundo. " nome " precisava aprender a utilizar esses códigos mágicos para manifestar seus poderes e salvar o reino."))
      (unquote (string-append "Em sua jornada, " nome " encontrou sábios e mestres que guardavam conhecimentos ancestrais sobre Racket. Para liberar seus poderes, ele precisava passar por testes elaborados pelos seres divinos que regiam o uso da magia. Cada vez que " nome " enfrentava um desafio divino, era questionado sobre conceitos complexos de Racket, desde definição de funções até manipulação de listas e recursões.")) ;;recursão até manipulação avançada de listas."
-     (unquote (string-append "Com determinação e estudo árduo, " nome " começou a dominar a linguagem de programação, desvendando segredos e desbloqueando novos poderes. Ele aprendeu a conjurar escudos protetores com 'if-else', lançar feitiços de ataque com 'define' e até manipular o espaço com 'list'."))
+     (unquote (string-append "Com determinação e estudo árduo, " nome " começou a dominar a linguagem de programação, desvendando segredos e desbloqueando novos poderes. Ele aprendeu a conjurar escudos protetores com 'if-else', lançar feitiços de ataque com 'define'."))
      ;; Colocar algumas quests aqui para testar o usuário
      ;; Caso o usuário falhe, falar que ele ainda não era apto para suceder a todos os poderes do Heroi
      (unquote (string-append "À medida que progredia, " nome " reunia aliados, cada um com sua própria habilidade única, todos unidos pelo objetivo comum de derrotar o Rei Demônio e salvar o mundo da perdição iminente."))
@@ -68,4 +79,8 @@
 
      )))
 
-(printWithEnter text-to-print)
+(printWithEnter text1)
+;;(nivel1)
+
+;;(printWithEnter text2)
+(nivel2)
