@@ -1,4 +1,7 @@
 #lang racket
+(require rackunit)
+(require rackunit/text-ui)
+
 
 (define ns (make-base-namespace))
 
@@ -8,17 +11,49 @@
   (cons 'lambda (cons args etc))
   )
 
-(define (nivel2)
+(define (nivel1)
   (displayln '"Você precisa SOMAR danos ao inimigo. Crie uma função que SOME o dano de DOIS feitiços e retorne o resultado da soma.")
   (display '"Insira a resposta aqui: ")
   (resp (read (current-input-port)) 1)
   )
 
+(define(nivel1-solucao parametroA parametroB)
+  (+ parametroA parametroB)
+  )
+
+
+
+(define (nivel2)
+  (displayln '"Você precisa identificar os ataques inimigos. Sua função deve retornar:")
+  (displayln (string-append '"#t: quando receber ATAQUE"))
+  (displayln (string-append '"#f: quando receber qualquer outra coisa"))
+  (resp (read (current-input-port)) 2) 
+  )
+
 (define (nivel2-solucao parametro)
   (cond
-    [(equal? parametro "ataque") #t]
+    [(equal? parametro "ATAQUE") #t]
     [else #f])
   )
+
+
+
+(define (nivel3-solucao lista pares impares)
+  (cond
+    [(empty? lista) (list pares impares)]
+    [(and (number? (first lista)) (integer? (first lista)))
+     (if (= (remainder (first lista) 2) 0)
+         (separar (rest lista) (cons (first lista) pares) impares)
+         (separar (rest lista) pares (cons (first lista) impares)))]
+    [else
+     (separar (rest lista) pares impares)])
+  )
+
+;; Chamar a função com uma lista para separar pares e ímpares
+;;(display (separar '(1 2 3 4 5 6 11 12 13 15 2 2) '() '())) ; Substitua a lista pelo que desejar testar
+;;(newline)
+
+
 
 (define (nivel4-solucao vida golpes)
   (cond
@@ -30,21 +65,44 @@
   (cond
     [(= nv 1) (displayln "Você errou, tente novamente")]
     [(= nv 2) (displayln "Você errou, tente novamente")]
+    [(= nv 3) (displayln "Você errou, tente novamente")]
+    [(= nv 4) (displayln "Você errou, tente novamente")]
     )
   )
 
 (define (resp resposta nivel)
   (with-handlers ([exn:fail? (lambda(e) (errou-nivel nivel))])
     (let ([exp (eval (func-to-lambda resposta) ns)])
-      (cond
-        [(equal? (exp "ataque") (nivel2-solucao "ataque")) "Parabéns! Você acertou"]
-        [else (displayln (exp))])
-      )
+      (verifica-resp exp nivel))
     )
   )
 
-(define (teste nivel)
-  (resp (read (current-input-port)) nivel)
+(define (verifica-resp func nivel)
+  (if
+   (cond
+    [(= nivel 1) (verifica-resp-nivel1 func)]
+    [(= nivel 2) (verifica-resp-nivel2 func)]
+    ;;[(= nivel 3) (teste-nivel3 func)]
+    ;;[(= nivel 4) (teste-nivel4 func)]
+    ) (displayln "Voce acertou") (errou-nivel nivel))
+  )
+
+(define (verifica-resp-nivel1 func)
+  (and
+   (if (equal? (func 1 1) (nivel1-solucao 1 1)) #t #f)
+   (if (equal? (func 0 1) (nivel1-solucao 0 1)) #t #f)
+   (if (equal? (func 0 0) (nivel1-solucao 0 0)) #t #f)
+   (if (equal? (func -1 1) (nivel1-solucao -1 1)) #t #f)
+   (if (equal? (func -1 -1) (nivel1-solucao -1 -1)) #t #f)
+   (if (equal? (func 15.5 4) (nivel1-solucao 15.5 4)) #t #f)
+   )
+  )
+
+(define (verifica-resp-nivel2 func)
+  (and
+   (if (equal? (func "ATAQUE") (nivel2-solucao "ATAQUE")) #t #f)
+   (if (equal? (func "qualquer coisa") (nivel2-solucao 2)) #t #f)
+   )
   )
 
 ;;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
@@ -70,17 +128,19 @@
      (unquote (string-append "Com determinação e estudo árduo, " nome " começou a dominar a linguagem de programação, desvendando segredos e desbloqueando novos poderes. Ele aprendeu a conjurar escudos protetores com 'if-else', lançar feitiços de ataque com 'define'."))
      ;; Colocar algumas quests aqui para testar o usuário
      ;; Caso o usuário falhe, falar que ele ainda não era apto para suceder a todos os poderes do Heroi
-     (unquote (string-append "À medida que progredia, " nome " reunia aliados, cada um com sua própria habilidade única, todos unidos pelo objetivo comum de derrotar o Rei Demônio e salvar o mundo da perdição iminente."))
+     )))
+
+(define text2
+  (quasiquote((unquote (string-append "À medida que progredia, " nome " reunia aliados, cada um com sua própria habilidade única, todos unidos pelo objetivo comum de derrotar o Rei Demônio e salvar o mundo da perdição iminente."))
      (unquote (string-append "No confronto final, diante do Rei Demônio e suas legiões demoníacas, " nome " utilizou seu conhecimento em Racket para conjurar um poderoso algoritmo, capaz de desativar as defesas do vilão. Com coragem e determinação, " nome " se preparou para lançar o código final, para invocar um feitiço supremo que selaria o Rei Demônio."))
      ;; Quest final aqui
      ;; Caso o usuário falhe, falar que ainda o Rei Demônio era forte demais para o estado atual do usuário e que ele deveria refazer a jornada dele para se aprimorar
      (unquote (string-append "Após concluir o feitiço final, " nome " selou o Rei Demônio, restaurando a paz e a harmonia ao reino. "))
      (unquote (string-append nome " agora reconhecido como o Herói da Programação, tornou-se uma lenda, inspirando outros a dominar a linguagem mágica de Racket para proteger e preservar a ordem daquele universo encantado."))
-
      )))
 
 (printWithEnter text1)
 ;;(nivel1)
-
-;;(printWithEnter text2)
 (nivel2)
+
+(printWithEnter text2)
