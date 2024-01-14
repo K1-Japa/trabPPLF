@@ -37,7 +37,7 @@
 
 
 ;; Lista -> Lista
-;;Função serve para substituir a palavra "define" no começo de uma função por "lambda".
+;;Função serve para converter uma lista que representa uma função nomeada, para uma lista que representa uma função anônima.
 (define (func-to-lambda lista)
   ;;Lista -> Lista
   ;; Função que pega o nome da função que foi inserida no argumento
@@ -48,7 +48,6 @@
   ;;Lista -> Lista
   ;;Função que obtém o resto da lista, com exceção dos 2 primeiros elementos da lista
   (define etc (drop lista 2))
-  ;;(cons 'lambda(cons args (build funcname etc '())))
 
   ;;Lista -> Lista
   ;; Cria uma expressão 'letrec' para definir a função 'x' como uma lambda com os argumentos 'args' e o corpo 'etc'
@@ -56,12 +55,13 @@
   )
 
 
-;;Void -> String
+;;Numero -> String
 ;;Função para mostrar a 1a fase para o jogador e pedir a resposta dele
-(define (nivel1)
+(define (nivel1 tentativa)
   (displayln '"Você precisa SOMAR danos ao inimigo. Crie uma função que SOME o dano de DOIS feitiços e retorne o resultado da soma.")
+  (if (= tentativa 0) (displayln "Dica: a função para subtração é\n(define (sub x y)\n    (- x y))\n") (void))
   (display '"Insira a resposta aqui: ")
-  (resp (read (current-input-port)) 1)
+  (resp (read (current-input-port)) 1 tentativa)
   )
 
 ;; Numero -> Numero
@@ -88,11 +88,12 @@
 ;;Teste -> Void
 ;;Executa um conjunto de testes
 (define (executa-testes . testes)
-(run-tests (test-suite "Todos os testes" testes))
-(void))
+  (run-tests (test-suite "Todos os testes" testes))
+  (void))
 
 
 ;; Funcao que executa a rodada de testes da funcao solucao
+(displayln "Verificando o funcionamento correto do jogo...")
 (executa-testes testes-solucao-nivel1)
 
 ;; Lista -> Boolean
@@ -109,13 +110,15 @@
    )
   )
 
-;;Void -> String
+;;Numero -> String
 ;;Função para mostrar a 2a fase para o jogador e pedir a resposta dele
-(define (nivel2)
+(define (nivel2 tentativa)
   (displayln '"Você precisa identificar os ataques inimigos. Sua função deve retornar:")
-  (displayln (string-append '"#t: quando receber ATAQUE"))
+  (displayln (string-append '"#t: quando receber a string ATAQUE"))
   (displayln (string-append '"#f: quando receber qualquer outra coisa"))
-  (resp (read (current-input-port)) 2) 
+  (if (= tentativa 0) (displayln "Dica: Utilize a forma cond\n (cond\n    [comparacao #t]\n    [else #f]\n )\n") (void))
+  (display '"Insira a resposta aqui: ")
+  (resp (read (current-input-port)) 2 tentativa) 
   )
 
 ;;String -> Boolean
@@ -124,7 +127,8 @@
   (test-suite
    "testes-solucao-nivel2"
    (check-equal? (nivel2-solucao "ATAQUE") #t )
-   (check-equal? (nivel2-solucao 2)#f  )
+   (check-equal? (nivel2-solucao 2) #f)
+   (check-equal? (nivel2-solucao 'ATAQUE) #f)
    )
   )
 
@@ -152,32 +156,49 @@
    )
   )
 
+(define testes-solucao-nivel3
+  (test-suite
+   "testes-solucao-nivel3"
+   (check-equal? (nivel3-solucao 0 1) 0)
+   (check-equal? (nivel3-solucao 1 1) 1)
+   (check-equal? (nivel3-solucao 3 2) 9)
+   (check-equal? (nivel3-solucao 10 3) 1000)
+   )
+  )
+
 ;; ??? -> ???
 ;; Função resolução da fase 3
 ;; Função que ???
-(define (nivel3-solucao vida golpes)
-  (letrec ([x (lambda (vida golpes)
+(define (nivel3-solucao poder tempo)
   (cond
-    [(equal? vida 0) golpes]
-    [else (x (sub1 vida) (add1 golpes))]))])
-  x))
+    [(equal? tempo 0) 1]
+    [else (* poder (nivel3-solucao  poder (sub1 tempo)))]
+    )
+  )
 
-
+(executa-testes testes-solucao-nivel3)
 
 ;; Lista -> Boolean
 ;; Função que verifica se a função inserida pelo jogador retorna o valor desejado no nivel 3
 ;; Com base nas nossos testes e solucoes
 (define (verifica-resp-nivel3 func)
-    (func 10 0)
-    )
+  (and
+   (if (equal? (func 1 1) (nivel3-solucao 1 1)) #t #f)
+   (if (equal? (func 3 2) (nivel3-solucao 3 2)) #t #f)
+   (if (equal? (func 2 6) (nivel3-solucao 2 6)) #t #f)
+   (if (equal? (func 9 1) (nivel3-solucao 9 1)) #t #f)
+   (if (equal? (func 10 3) (nivel3-solucao 10 3)) #t #f)
+   (if (equal? (func 4 3) (nivel3-solucao 4 3)) #t #f)
+   )
+  )
 
 
-;; Void -> String
+;; Numero -> String
 ;; Função para mostrar a 4a fase para o jogador e pedir a resposta da resolução dele
-(define (nivel4)
+(define (nivel4 tentativa)
   (displayln '"Você precisa separar em 2 listas os buffs e os debuffs que você ira receber para ajudar a derrotar o taltal tal, para isso separe a lista em numeros pares e impares")
   (display '"Insira a sua função aqui: ")
-  (resp (read (current-input-port)) 4)
+  (resp (read (current-input-port)) 4 tentativa)
   )
 
 ;; Lista -> Lista
@@ -226,39 +247,48 @@
    )
   )
 
-;; Numero -> String/Função anonima??
+;; Numero + Numero -> Função
 ;; Função que recebe em qual nivel o jogador cometeu um erro na resposta e
 ;; Retorna a mensagem de erro, permitindo a tentativa do usuario novamente
-;; Neste mesmo nivel
-(define (errou-nivel nv)
+;; Neste mesmo nivel. Caso ele nao tenha mais tentativas, ele encerra o jogo
+(define (errou-nivel nv tentativa)
   (cond
     [(= nv 1)
-     (let ([funcao (lambda ()
-                     (displayln "\nVocê errou, tente novamente\n")
-                     (nivel1))])
-           (funcao))]
-    [(= nv 2) (let ([funcao (lambda ()
-                     (displayln "\nVocê errou, tente novamente\n")
-                     (nivel2))])
-           (funcao))]
+     (if (= 0 tentativa)
+         -1
+         ((lambda ()
+           (displayln "\nVocê errou, tente novamente\n")
+           (nivel1 (- tentativa 1))))
+         )]
+    
+    [(= nv 2)
+    (if (= 0 tentativa)
+         -1
+         ((lambda ()
+           (displayln "\nVocê errou, tente novamente\n")
+           (nivel2 (- tentativa 1))))
+         )]
     ;;[(= nv 3) (let ([funcao (lambda ()
       ;;               (displayln "\nVocê errou, tente novamente\n")
-        ;;             (nivel3))])
+        ;;             (nivel3 (- tentativa 1)))])
           ;; (funcao))]
-    [(= nv 4) (let ([funcao (lambda ()
-                     (displayln "\nVocê errou, tente novamente\n")
-                     (nivel4))])
-           (funcao))]
+    [(= nv 4)
+    (if (= 0 tentativa)
+         -1
+         ((lambda ()
+           (displayln "\nVocê errou, tente novamente\n")
+           (nivel4 (- tentativa 1))))
+         )]
     )
   )
 
 ;; String + Numero -> Funçao anonima
 ;; Função que avalia a resposta do usuario como uma função e
 ;; Retorna a funçao de 'errou nivel nivel' caso a resposta do usuario esteja errada(exceção)
-(define (resp resposta nivel)
-  (with-handlers ([exn:fail? (lambda(e) (errou-nivel nivel))])
+(define (resp resposta nivel tentativa)
+  (with-handlers ([exn:fail? (lambda(e) (errou-nivel nivel tentativa))])
     (let ([exp (eval (func-to-lambda resposta) ns)])
-      (verifica-resp exp nivel))
+      (verifica-resp exp nivel tentativa))
     )
 )
 
@@ -266,14 +296,17 @@
 ;; Função que verifica se o jogador inseriu uma função que retorna a resposta correta
 ;; Caso o jogador acerte o resultado, a função retorna a String
 ;; Caso contrario retorna a função 'errou-nivel'
-(define (verifica-resp func nivel)
+(define (verifica-resp func nivel tentativa)
   (if
    (cond
   [(= nivel 1) (verifica-resp-nivel1 func)]
   [(= nivel 2) (verifica-resp-nivel2 func)]
   [(= nivel 3) (verifica-resp-nivel3 func)]
   ;;[(= nivel 4) (verifica-resp-nivel4 func)]
-    ) (displayln "\nVoce acertou!\n") (errou-nivel nivel))
+    ) ((lambda ()
+        (displayln "\nVoce acertou!\n")
+        (+ 1 tentativa)))
+        (errou-nivel nivel tentativa))
   )
 
 
@@ -296,8 +329,18 @@
 
 ;; String -> String
 ;; Funcao que armazena o nome do jogador e retorna ela quando o nome do jogador é citado na historia
-(displayln "Insira seu nome: ")
+(displayln "\nInsira seu nome: ")
 (define nome (read-line (current-input-port)))
+
+;; String-> String
+;; Funcao que mostra o tutorial para o jogo
+(define tutorial
+  (quasiquote( (unquote (string-append "\nOlá " nome "! antes do início do jogo, vamos a um breve tutorial do funcionamento do jogo."))
+               (unquote "Durante sua envolvente jornada, você vários desafios! Assim, para cada uma das adversidade haverá um número máximo de tentativas. Caso seja necessário, a partir da terceira tentativa, uma dica será apresentada.")
+               (unquote "Você terá que se provar ao elaborar funções na linguagem Racket. Assim, segue algumas orientações da forma como as funções devem ser escritas: ")
+               (unquote "Exemplo de como escrever uma função que retorne o maior elemento:\n(define (funcao x y)\n    (if (< x y) x y))")
+               (unquote "Agora tudo que tenho a fazer é desejar sorte a sua jornada. BOA SORTE!!!")
+               )))
 
 ;; String -> String
 ;; Funcao que mostra a 1a parte da historia jogo
@@ -323,10 +366,39 @@
      (unquote (string-append nome " agora reconhecido como o Herói da Programação, tornou-se uma lenda, inspirando outros a dominar a linguagem mágica de Racket para proteger e preservar a ordem daquele universo encantado."))
      )))
 
-(printWithEnter text1)
-(nivel1)
-(nivel2)
-;;(nivel3)
-(nivel4)
+(define (jogo niveis)
+  (printWithEnter tutorial)
+  (printWithEnter text1)
+  (printWithEnter text2)
+  (define tentativas 2)
 
-(printWithEnter text2)
+  (define (soma-score nivel)
+    (cond
+      [(empty? nivel) 0]
+      [else
+       ((lambda ()
+          (define score ((first nivel) tentativas))
+          (cond
+            [(equal? score -1) #f]
+            [(+ 0 score (soma-score (rest nivel)))])))
+          ]
+      )
+    )
+  (define score (soma-score niveis))
+  (if (equal? score #f) (fimderrota) (fimvitoria score))
+  )
+
+(define (fimderrota)
+  (displayln "\nVocê perdeu\n")
+  )
+
+(define (fimvitoria pontuacao)
+  (displayln "\nVocê ganhou\n")
+  (displayln pontuacao)
+  )
+
+(define niveis (list nivel1 nivel2 nivel4))
+
+(jogo niveis)
+
+;; Terminar score, terminar as dicas, revisar comentarios, fazer as funcoes do nivel 3, fazer funcao de derrota, fazer função de vitoria
