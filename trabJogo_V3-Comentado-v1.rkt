@@ -337,7 +337,7 @@
   [(= nivel 3) (verifica-resp-nivel3 func)]
   [(= nivel 4) (verifica-resp-nivel4 func)]
     ) ((lambda ()
-        (displayln "\nVoce acertou!\n")
+        (display "\nVoce acertou!\n\n")
         (+ 1 tentativa)))
         (errou-nivel nivel tentativa))
   )
@@ -356,7 +356,8 @@
     (newline)
     (displayln "Press Enter to continue...")
     (flush-output)
-    (read-char) ; Wait for Enter key
+    (let ([bash (read-line)])
+      (void)); Wait for Enter key
     (newline)
     )
   )
@@ -370,7 +371,7 @@
 ;; Funcao que define uma lista de strings do tutorial do jogo
 (define tutorial
   (quasiquote( (unquote (string-append "\nOlá " nome "! antes do início do jogo, vamos a um breve tutorial do funcionamento do jogo."))
-               (unquote "Durante sua envolvente jornada, você vários desafios! Assim, para cada uma das adversidade haverá um número máximo de tentativas. Caso seja necessário, a partir da terceira tentativa, uma dica será apresentada.")
+               (unquote "Durante sua envolvente jornada, você enfrentará vários desafios! Assim, para cada uma das adversidades haverá um número máximo de tentativas. Caso seja necessário, a partir da terceira tentativa, uma dica será apresentada.")
                (unquote "Você terá que se provar ao elaborar funções na linguagem Racket. Assim, segue algumas orientações da forma como as funções devem ser escritas: ")
                (unquote "Exemplo de como escrever uma função que retorne o maior elemento:\n(define (funcao x y)\n    (if (< x y) x y))")
                (unquote "Agora tudo que tenho a fazer é desejar sorte a sua jornada. BOA SORTE!!!")
@@ -379,49 +380,65 @@
 ;; Void -> Lista
 ;; Funcao que define uma lista de strings da 1a parte da história do jogo
 (define text1
-  (quasiquote( (unquote (string-append "Em um reino distante, existia um mundo paralelo onde os destinos eram tecidos pela linguagem mágica da programação. Neste universo, cada indivíduo nascia com um código único, determinando seus poderes e habilidades.
-      Certo dia, um jovem chamado " nome " foi transportado para esse mundo mágico através de um portal inesperado. Ao despertar, descobriu que havia reencarnado como um Herói, destinado a derrotar o temível Rei Demônio que ameaçava a existência de todas as criaturas."))
-     (unquote (string-append "Contudo, as habilidades do Herói só poderiam ser desbloqueadas através do conhecimento e domínio da linguagem de programação Racket, que era a base de todos os poderes mágicos daquele mundo. " nome " precisava aprender a utilizar esses códigos mágicos para manifestar seus poderes e salvar o reino."))
-     (unquote (string-append "Em sua jornada, " nome " encontrou sábios e mestres que guardavam conhecimentos ancestrais sobre Racket. Para liberar seus poderes, ele precisava passar por testes elaborados pelos seres divinos que regiam o uso da magia. Cada vez que " nome " enfrentava um desafio divino, era questionado sobre conceitos complexos de Racket, desde definição de funções até manipulação de listas e recursões.")) ;;recursão até manipulação avançada de listas."
-     (unquote (string-append "Com determinação e estudo árduo, " nome " começou a dominar a linguagem de programação, desvendando segredos e desbloqueando novos poderes. Ele aprendeu a conjurar escudos protetores com 'if-else', lançar feitiços de ataque com 'define'."))
-     ;; Colocar algumas quests aqui para testar o usuário
-     ;; Caso o usuário falhe, falar que ele ainda não era apto para suceder a todos os poderes do Heroi
-     )))
-
+  (quasiquote( (unquote (string-append "Em um reino distante, existia um mundo paralelo onde os destinos eram tecidos pela linguagem mágica da programação. Neste universo, cada indivíduo nascia com um código único, determinando seus poderes e habilidades."))
+               (unquote (string-append "Certo dia, um jovem chamado " nome " foi transportado para esse mundo mágico através de um portal inesperado. Ao despertar, descobriu que havia reencarnado como um Herói, destinado a derrotar o temível Rei Demônio que ameaçava a existência de todas as criaturas."))
+               (unquote (string-append "Contudo, as habilidades do Herói só poderiam ser desbloqueadas através do conhecimento e domínio da linguagem de programação Racket, que era a base de todos os poderes mágicos daquele mundo. " nome " precisava aprender a utilizar esses códigos mágicos para manifestar seus poderes e salvar o reino."))
+               (unquote (string-append "Em sua jornada, " nome " encontrou sábios e mestres que guardavam conhecimentos ancestrais sobre Racket. Para liberar seus poderes, ele precisava passar por testes elaborados pelos seres divinos que regiam o uso da magia. Cada vez que " nome " enfrentava um desafio divino, era questionado sobre conceitos complexos de Racket ele realizava diversos ataque utilizando funções 'define'."))
+     )
+     ))
 
 ;; Void -> Lista
 ;; Funcao que define uma lista de strings da 2a parte da história do jogo
 (define text2
+  (quasiquote ( (unquote (string-append "Com determinação e estudo árduo, " nome " começou a dominar a linguagem de programação, desvendando segredos e desbloqueando novos poderes."))
+                (unquote (string-append "Em seguida, " nome " aprendeu que se defender é tão importante quanto atacar. Assim se dedicou a aprender como conjurar escudos protetores com 'if-else'"))
+                )
+              ))
+
+;; Void -> Lista
+;; Funcao que define uma lista de strings da 3a parte da história do jogo
+(define text3
+  (quasiquote ( (unquote (string-append "Durante sua jornada para enfrentar o Rei demônio " nome " se deparou com um enorme golem de pedra como inimigo."))
+                (unquote (string-append "Sua resistência era incomparável! E além possui habilidades regenerativas."))
+                (unquote (string-append "Era necessário uma explosão de dano."))
+                )
+              ))
+
+;; Void -> Lista
+;; Funcao que define uma lista de strings da 4a parte da história do jogo
+(define text4
   (quasiquote((unquote (string-append "À medida que progredia, " nome " reunia aliados, cada um com sua própria habilidade única, todos unidos pelo objetivo comum de derrotar o Rei Demônio e salvar o mundo da perdição iminente."))
-     (unquote (string-append "No confronto final, diante do Rei Demônio e suas legiões demoníacas, " nome " utilizou seu conhecimento em Racket para conjurar um poderoso algoritmo, capaz de desativar as defesas do vilão. Com coragem e determinação, " nome " se preparou para lançar o código final, para invocar um feitiço supremo que selaria o Rei Demônio."))
-     ;; Quest final aqui
-     ;; Caso o usuário falhe, falar que ainda o Rei Demônio era forte demais para o estado atual do usuário e que ele deveria refazer a jornada dele para se aprimorar
+     (unquote (string-append "No confronto final, diante do Rei Demônio e suas legiões demoníacas, " nome " utilizou seu conhecimento em Racket para conjurar um poderoso algoritmo, capaz de desativar as defesas do vilão."
+                             )))))
+
+(define textfim
+  (quasiquote ((unquote (string-append "Com coragem e determinação, " nome " se preparou para lançar o código final, para invocar um feitiço supremo que selaria o Rei Demônio."))
      (unquote (string-append "Após concluir o feitiço final, " nome " selou o Rei Demônio, restaurando a paz e a harmonia ao reino. "))
      (unquote (string-append nome " agora reconhecido como o Herói da Programação, tornou-se uma lenda, inspirando outros a dominar a linguagem mágica de Racket para proteger e preservar a ordem daquele universo encantado."))
      )))
 
 ;; Numero -> Funcao
 ;; Função que executa o jogo
-(define (jogo niveis)
+(define (jogo niveis historia)
   (printWithEnter tutorial)
-  (printWithEnter text1)
-  (printWithEnter text2)
 
   (define tentativas 2)
 
-  ;; Numero -> Numero
-  ;; Função que soma a pontuação realizada pelo jogador
-  ;; Durante todos os niveis, interrompendo a execucao do jogo
-  ;; Caso o jogador tenha perdido
-  (define (soma-score nivel)
+  ;; Listas -> Numero
+  ;; Funcao que imprime a história e executa os niveis realizando a soma
+  ;; Do score do jogador, caso o jogador falhe durante um nivel
+  ;; O jogo é interrompido e encerrado
+  (define (soma-score nivel historia)
+    (if (empty? historia) (void) (printWithEnter (first historia)))
     (cond
       [(empty? nivel) 0]
       [else
+       (with-handlers ([exn:fail? (lambda(e) #f)])
        ((lambda ()
           (define score ((first nivel) tentativas))
           (cond
             [(equal? score -1) #f]
-            [else (+ 0 score (soma-score (rest nivel)))])))
+            [else (+ 0 score (soma-score (rest nivel) (rest historia)))]))))
           ]
       )
     )
@@ -431,29 +448,30 @@
   ;; Função que com base na soma feita pelo 'soma-score'
   ;; Retorna se o jogador conseguiu ganhar o jogo ou se
   ;; o jogador perdeu o jogo
-  (define score (soma-score niveis))
+  (define score (soma-score niveis historia))
   (if (equal? score #f) (fimderrota) (fimvitoria score))
   )
 
 ;; Void -> String
 ;; Função que mostra na tela do jogador que ele perdeu o jogo
 (define (fimderrota)
-  (displayln "\nVocê perdeu\n")
+  (displayln "\nVocê foi derrotado.....\nTe desejo mais sorte da próxima vez.....")
   )
 
 ;; Void -> String
 ;; Função que mostra na tela do jogador que ele ganhou o jogo
 (define (fimvitoria pontuacao)
+  (printWithEnter textfim)
   (display "Você ganhou!\nSeu score final foi: ")
   (display pontuacao)
   (displayln "\nMeus parabéns!")
   )
 
-
-;; Nivel -> Lista
-;; Função que faz uma lista com todos os niveis disponiveis no jogo
 (define niveis (list nivel1 nivel2 nivel3 nivel4))
 
-(jogo niveis)
+(define historia (list text1 text2 text3 text4))
 
+
+
+(jogo niveis historia)
 ;; Terminar score, terminar as dicas, revisar comentarios, fazer as funcoes do nivel 3, fazer funcao de derrota, fazer função de vitoria

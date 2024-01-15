@@ -38,16 +38,7 @@
 
 
 
-(define (nivel3-solucao lista pares impares)
-  (cond
-    [(empty? lista) (list pares impares)]
-    [(and (number? (first lista)) (integer? (first lista)))
-     (if (= (remainder (first lista) 2) 0)
-         (separar (rest lista) (cons (first lista) pares) impares)
-         (separar (rest lista) pares (cons (first lista) impares)))]
-    [else
-     (separar (rest lista) pares impares)])
-  )
+
 
 ;; Chamar a função com uma lista para separar pares e ímpares
 ;;(display (separar '(1 2 3 4 5 6 11 12 13 15 2 2) '() '())) ; Substitua a lista pelo que desejar testar
